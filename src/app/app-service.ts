@@ -130,12 +130,34 @@ export class AppService {
     }
   }
 
+  // Initialize a contributor's ContributorIndex (must be called by the contributor themselves)
+  async initContributorIndex() {
+    const [contributorPDA] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("CONTRIBUTORINDEX"),
+        this.wallat.publicKey.toBuffer(),
+      ],
+      this.program.programId
+    );
+
+    const tx = await (this.program.methods as any)
+      .createContributerIndex()
+      .accounts({
+        contributor: contributorPDA,
+        signer: this.wallat.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .transaction();
+
+    await this.sendTx(tx);
+  }
+
   async create_doc(docLink: any, contributers: any) {
 
     const [docPDA] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("DOC"),
-        Buffer.from(this.wallat.publicKey.toBase58()),
+        this.wallat.publicKey.toBuffer(),
         Buffer.from(docLink),
       ],
       this.program.programId
@@ -144,13 +166,24 @@ export class AppService {
     const [creatorPDA] = PublicKey.findProgramAddressSync(
       [
         Buffer.from("CREATORINDEX"),
-        Buffer.from(this.wallat.publicKey.toBase58()),
+        this.wallat.publicKey.toBuffer(),
       ],
       this.program.programId
     );
 
     console.log(docPDA.toBase58(), this.wallat)
-    const contributersPubKey = contributers.map(
+
+    // Validate and sanitize contributor addresses
+    const cleanedContributers = contributers.map((addr: string) => addr.trim());
+    for (const addr of cleanedContributers) {
+      try {
+        new PublicKey(addr);
+      } catch {
+        throw new Error(`Invalid contributor address: "${addr}". Must be a valid Solana wallet address.`);
+      }
+    }
+
+    const contributersPubKey = cleanedContributers.map(
       (addr: string) => new PublicKey(addr)
     );
 
@@ -159,13 +192,28 @@ export class AppService {
         const [contributerPDA] = PublicKey.findProgramAddressSync(
           [
             Buffer.from("CONTRIBUTORINDEX"),
-            Buffer.from(addr),
+            new PublicKey(addr).toBuffer(),
           ],
           this.program.programId
         );
         return contributerPDA;
       }
     );
+
+    // Pre-check: verify each contributor's ContributorIndex account exists and is program-owned
+    const unregistered: string[] = [];
+    for (let i = 0; i < contributersPDA.length; i++) {
+      const accInfo = await this.connection.getAccountInfo(contributersPDA[i]);
+      if (!accInfo || accInfo.owner.toBase58() !== this.programId.toBase58()) {
+        const addr = contributers[i];
+        unregistered.push(addr.slice(0, 6) + '…' + addr.slice(-4));
+      }
+    }
+    if (unregistered.length > 0) {
+      throw new Error(
+        `These contributors have not registered their ContributorIndex yet: ${unregistered.join(', ')}. Each contributor must register before being added to a document.`
+      );
+    }
 
     const tx = await (this.program.methods as any)
       .createDoc(docLink, contributersPubKey)
@@ -183,21 +231,7 @@ export class AppService {
         }))
       )
       .transaction();
-    try {
-      await this.sendTx(tx);
-    }
-    catch (err: any) {
-      console.log(err);
-
-      const errorMsg = this.getErrorMessage(err);
-
-      if (errorMsg.includes("already exists")) {
-        alert(errorMsg);
-        await this.queryDoc(docPDA);
-      } else {
-        alert(errorMsg);
-      }
-    }
+    await this.sendTx(tx);
 
   }
 
@@ -284,7 +318,7 @@ export class AppService {
       const [creatorPDA] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("CREATORINDEX"),
-          Buffer.from(this.wallat.publicKey.toBase58()),
+          this.wallat.publicKey.toBuffer(),
         ],
         this.program.programId
       );
@@ -303,7 +337,7 @@ export class AppService {
       const [contributorPDA] = PublicKey.findProgramAddressSync(
         [
           Buffer.from("CONTRIBUTORINDEX"),
-          Buffer.from(this.wallat.publicKey.toBase58()),
+          this.wallat.publicKey.toBuffer(),
         ],
         this.program.programId
       );
@@ -319,15 +353,21 @@ export class AppService {
 
   async resolveLogEntry(log: string): Promise<string> {
     try {
-      // Log format: "Signed <profilePDA>"
+      // Log format: "Signed <walletPubkey>"
       const parts = log.split(' ');
       if (parts.length >= 2 && parts[0] === 'Signed') {
-        const pdaStr = parts[1];
-        const pda = new PublicKey(pdaStr);
-        const profile = await this.queryProfile(pda);
+        const walletKey = new PublicKey(parts[1]);
+        // Derive the profile PDA from the wallet key
+        const [profilePDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from('PROFILE'), walletKey.toBuffer()],
+          this.programId
+        );
+        const profile = await this.queryProfile(profilePDA);
         if (profile && profile.name) {
           return `Signed by ${profile.name}`;
         }
+        // Fallback: show truncated wallet address
+        return `Signed by ${parts[1].slice(0, 6)}…${parts[1].slice(-4)}`;
       }
       return log;
     } catch {
@@ -337,6 +377,10 @@ export class AppService {
 
   getErrorMessage(err: any): string {
     const msg = err?.message || err?.toString() || '';
+
+    // Also check Anchor logs array if present
+    const logs: string[] = err?.logs || err?.simulationResponse?.logs || [];
+    const allText = msg + ' ' + logs.join(' ');
 
     const errorMap: Record<number, string> = {
       6000: 'Profile already exists for this wallet.',
@@ -353,7 +397,7 @@ export class AppService {
     };
 
     for (const [code, message] of Object.entries(errorMap)) {
-      if (msg.includes(code.toString()) || msg.includes(message)) {
+      if (allText.includes(code.toString()) || allText.includes(message)) {
         return message;
       }
     }
@@ -374,12 +418,30 @@ export class AppService {
     };
 
     for (const [name, message] of Object.entries(nameMap)) {
-      if (msg.includes(name)) {
+      if (allText.includes(name)) {
         return message;
       }
     }
 
-    return 'Something went wrong. Please try again.';
+    // Extract Anchor error code from logs pattern: "Error Code: <name>"
+    const anchorMatch = allText.match(/Error Code: (\w+)/);
+    if (anchorMatch && nameMap[anchorMatch[1]]) {
+      return nameMap[anchorMatch[1]];
+    }
+
+    // Check for common Solana errors
+    if (allText.includes('already in use')) {
+      return 'This account already exists on-chain.';
+    }
+    if (allText.includes('insufficient funds') || allText.includes('Insufficient')) {
+      return 'Insufficient SOL balance to complete the transaction.';
+    }
+    if (allText.includes('User rejected')) {
+      return 'Transaction was rejected by the wallet.';
+    }
+
+    console.error('Unhandled Solana error:', msg, logs);
+    return 'Something went wrong: ' + (msg.length > 120 ? msg.slice(0, 120) + '…' : msg);
   }
 
 }
