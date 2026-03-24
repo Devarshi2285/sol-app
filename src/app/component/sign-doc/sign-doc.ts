@@ -129,7 +129,7 @@ export class SignDoc {
         });
 
         try {
-            await this.appService.do_sign(doc.docLink);
+            await this.appService.do_sign(doc.pda);
             // Refresh list after signing
             await this.loadMyDocs();
         } catch (err: any) {

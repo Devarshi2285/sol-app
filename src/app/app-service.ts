@@ -4,7 +4,6 @@ import {
   Connection,
   PublicKey,
   SystemProgram,
-  Keypair,
 } from '@solana/web3.js';
 
 import idl from './idl/idl.json';
@@ -107,15 +106,7 @@ export class AppService {
     }
     catch (err: any) {
       console.log(err);
-
-      // Anchor error message
-      const errorMsg = err?.Logs?.errorMessage || err?.message;
-
-      if (errorMsg.includes("Profile already exists")) {
-        alert("Profile already exists!");
-      } else {
-        alert("Something went wrong");
-      }
+      alert(this.getErrorMessage(err));
     }
 
     await this.queryProfile(profilePDAPublicKey);
@@ -179,12 +170,18 @@ export class AppService {
     const tx = await (this.program.methods as any)
       .createDoc(docLink, contributersPubKey)
       .accounts({
-        doc: docPDA, // ✅ camelCase
-        creator_index: creatorPDA,
+        doc: docPDA,
+        creatorIndex: creatorPDA,
         signer: this.wallat.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .remainingAccounts(contributersPDA)
+      .remainingAccounts(
+        contributersPDA.map((pda: PublicKey) => ({
+          pubkey: pda,
+          isSigner: false,
+          isWritable: true,
+        }))
+      )
       .transaction();
     try {
       await this.sendTx(tx);
@@ -192,13 +189,13 @@ export class AppService {
     catch (err: any) {
       console.log(err);
 
-      const errorMsg = err?.Logs?.errorMessage || err?.message;
+      const errorMsg = this.getErrorMessage(err);
 
-      if (errorMsg.includes("Document already exists")) {
-        alert("Document already exists!");
+      if (errorMsg.includes("already exists")) {
+        alert(errorMsg);
         await this.queryDoc(docPDA);
       } else {
-        alert("Something went wrong");
+        alert(errorMsg);
       }
     }
 
@@ -249,32 +246,16 @@ export class AppService {
   }
 
 
-  async do_sign(docLink: string) {
+  async do_sign(docPda: PublicKey | string) {
 
-    const seeds = [
-      Buffer.from("PROFILE"),
-      this.wallat.publicKey.toBuffer()
-    ]
-    const [profilePDAPublicKey, bumpSeed] = PublicKey.findProgramAddressSync(
-      seeds,
-      this.programId
-    )
+    const profilePDAPublicKey = this.generatePDA("PROFILE");
 
-
-    const [docPDA] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("DOC"),
-        Buffer.from(docLink),
-      ],
-      this.program.programId
-    );
-
-
+    const docPDAKey = typeof docPda === 'string' ? new PublicKey(docPda) : docPda;
 
     const tx = await (this.program.methods as any)
       .signDoc()
       .accounts({
-        doc: docPDA,
+        doc: docPDAKey,
         profile: profilePDAPublicKey,
         signer: this.wallat.publicKey,
         systemProgram: SystemProgram.programId,
@@ -286,17 +267,12 @@ export class AppService {
     catch (err: any) {
       console.log(err);
 
-      const errorMsg = err?.Logs?.errorMessage || err?.message;
-
-      if (errorMsg.includes("Document already exists")) {
-        alert("Document already exists!");
-        await this.queryDoc(docPDA);
-      } else {
-        alert("Something went wrong");
-      }
+      const errorMsg = this.getErrorMessage(err);
+      alert(errorMsg);
+      throw err;
     }
 
-    await this.queryDoc(docPDA);
+    return await this.queryDoc(docPDAKey);
 
   }
 
