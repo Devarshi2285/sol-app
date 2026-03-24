@@ -24,7 +24,7 @@ export class Landing implements AfterViewInit, OnDestroy {
             { threshold: 0.15 }
         );
 
-        document.querySelectorAll('.reveal').forEach((el) => {
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el) => {
             this.observer.observe(el);
         });
     }

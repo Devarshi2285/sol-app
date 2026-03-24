@@ -2,37 +2,93 @@
 <section class="hero">
     <div class="hero-bg">
         <img src="assets/hero-bg.png" alt="" class="hero-bg-img" />
+        <div class="hero-bg-overlay"></div>
     </div>
 
-    <div class="hero-content">
-        <div class="hero-badge">Built on Solana</div>
-        <h1 class="hero-title">
-            Document Signing<br>
-            <span class="hero-highlight">On the Blockchain</span>
-        </h1>
-        <p class="hero-subtitle">
-            Create, share, and sign documents with cryptographic proof.
-            Immutable records. Transparent audit trails. Zero trust required.
-        </p>
-        <div class="hero-actions">
-            <a routerLink="/profile" class="btn-hero primary">Get Started</a>
-            <a routerLink="/create-doc" class="btn-hero secondary">Create Document</a>
+    <div class="hero-inner">
+        <!-- Left: Text content -->
+        <div class="hero-text">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Built on Solana
+            </div>
+            <h1 class="hero-title">
+                Document Signing<br>
+                <span class="hero-highlight">On the Blockchain</span>
+            </h1>
+            <p class="hero-subtitle">
+                Create, share, and sign documents with cryptographic proof.
+                Immutable records. Transparent audit trails. Zero trust required.
+            </p>
+            <div class="hero-actions">
+                <a routerLink="/profile" class="btn-hero primary">
+                    Get Started
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </a>
+                <a routerLink="/create-doc" class="btn-hero secondary">Create Document</a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">On-Chain</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">Solana</span>
+                    <span class="stat-label">Powered</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">Multi</span>
+                    <span class="stat-label">Party Signing</span>
+                </div>
+            </div>
         </div>
 
-        <div class="hero-stats">
-            <div class="stat">
-                <span class="stat-value">100%</span>
-                <span class="stat-label">On-Chain</span>
+        <!-- Right: Video showcase -->
+        <div class="hero-visual">
+            <div class="hero-media-wrapper">
+                <div class="hero-media-glow"></div>
+                <div class="hero-media-card">
+                    <video class="hero-video" autoplay muted loop playsinline
+                        aria-label="Demonstration of SolSign multi-signature document signing workflow">
+                        <source src="assets/Web_Multi_Signature_Animation_Generation.mp4" type="video/mp4" />
+                    </video>
+                </div>
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat">
-                <span class="stat-value">Solana</span>
-                <span class="stat-label">Powered</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── Showcase Section ── -->
+<section class="section showcase-section">
+    <div class="container">
+        <div class="section-header reveal">
+            <span class="section-label">See It In Action</span>
+            <h2>Seamless Document Signing</h2>
+            <p>See how SolSign streamlines multi-party document workflows on the blockchain.</p>
+        </div>
+        <div class="showcase-browser reveal">
+            <div class="browser-topbar">
+                <div class="browser-dots">
+                    <span class="browser-dot dot-red"></span>
+                    <span class="browser-dot dot-yellow"></span>
+                    <span class="browser-dot dot-green"></span>
+                </div>
+                <div class="browser-url">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="m7 11 0-4a5 5 0 0 1 10 0l0 4"></path>
+                    </svg>
+                    solsign.app
+                </div>
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat">
-                <span class="stat-value">Multi</span>
-                <span class="stat-label">Party Signing</span>
+            <div class="browser-content">
+                <img src="assets/image2.png" alt="SolSign dashboard showing document list with signature status and on-chain activity logs" class="showcase-img" />
             </div>
         </div>
     </div>
@@ -139,11 +195,12 @@
 <section class="section cta-section">
     <div class="container">
         <div class="cta-card reveal">
+            <div class="cta-glow"></div>
             <h2>Ready to sign your first document?</h2>
             <p>Join the future of document verification. No intermediaries. No paper. Just cryptographic trust.</p>
             <div class="cta-actions">
                 <a routerLink="/profile" class="btn-hero primary">Create Profile</a>
-                <a routerLink="/sign-doc" class="btn-hero secondary">Sign a Document</a>
+                <a routerLink="/sign-doc" class="btn-hero secondary light">Sign a Document</a>
             </div>
         </div>
     </div>
