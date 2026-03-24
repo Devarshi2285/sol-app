@@ -31,6 +31,7 @@
     "@angular/router": "^21.1.0",
     "@project-serum/anchor": "^0.26.0",
     "@solana/web3.js": "^1.98.4",
+    "assert": "^2.1.0",
     "buffer": "^6.0.3",
     "process": "^0.11.10",
     "rxjs": "~7.8.0",
