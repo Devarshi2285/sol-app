@@ -1,0 +1,118 @@
+<div class="card">
+    <div class="icon-circle">✍️</div>
+
+    <div class="card-header">
+        <h2>Documents To Sign</h2>
+        <p>View and sign documents that have been assigned to you as a contributor.</p>
+    </div>
+
+    @if (error()) {
+    <div class="error-toast">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">{{ error() }}</span>
+    </div>
+    }
+</div>
+
+<!-- ── Contributor Doc List ── -->
+<div class="divider"></div>
+
+<h3 class="section-title">
+    📋 Assigned Documents
+    @if (myDocs().length > 0) {
+    <span class="section-count">{{ myDocs().length }}</span>
+    }
+</h3>
+
+@if (loadingDocs()) {
+<div class="empty-state">
+    <p class="animate-pulse">Loading assigned documents…</p>
+</div>
+} @else if (myDocs().length === 0) {
+<div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>No documents assigned to you yet.</p>
+</div>
+} @else {
+<div class="doc-list">
+    @for (doc of myDocs(); track doc.pda; let i = $index) {
+    <div class="doc-card">
+        <div class="doc-card-header">
+            <div>
+                <span class="doc-card-title">{{ doc.docLink }}</span>
+                <div style="margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-muted);">
+                    Created by <strong style="color: var(--text-secondary);">{{ doc.creatorName }}</strong>
+                </div>
+            </div>
+            @if (doc.isFinal) {
+            <span class="status-badge success">Finalized</span>
+            } @else if (doc.alreadySigned) {
+            <span class="status-badge success">Signed</span>
+            } @else {
+            <span class="status-badge pending">Awaiting Signature</span>
+            }
+        </div>
+
+        <div class="doc-card-meta">
+            <span class="meta-tag">
+                <span class="meta-icon">👥</span>
+                {{ doc.contributors.length }} contributors
+            </span>
+            <span class="meta-tag">
+                <span class="meta-icon">✍️</span>
+                {{ doc.signedBy.length }} signed
+            </span>
+        </div>
+
+        <!-- Contributors -->
+        @if (doc.contributors.length > 0) {
+        <div class="names-list" style="margin-bottom: 0.5rem;">
+            @for (name of doc.contributors; track $index) {
+            <span class="name-chip">👤 {{ name }}</span>
+            }
+        </div>
+        }
+
+        <!-- Signed By -->
+        @if (doc.signedBy.length > 0) {
+        <div class="names-list" style="margin-bottom: 0.75rem;">
+            @for (name of doc.signedBy; track $index) {
+            <span class="name-chip signed">✓ {{ name }}</span>
+            }
+        </div>
+        }
+
+        <!-- Sign Button -->
+        @if (!doc.alreadySigned && !doc.isFinal) {
+        <button class="btn btn-primary btn-block" (click)="signDocument(i)" [disabled]="doc.signing">
+            @if (doc.signing) {
+            <span class="animate-pulse">Signing…</span>
+            } @else {
+            ✍️ Sign This Document
+            }
+        </button>
+        }
+
+        <!-- Logs -->
+        @if (doc.logs.length > 0) {
+        <div class="log-section">
+            <div class="log-section-title" (click)="toggleLogs(i)">
+                <span class="toggle-icon" [class.expanded]="doc.logsExpanded">▶</span>
+                Activity Log ({{ doc.logs.length }})
+            </div>
+            @if (doc.logsExpanded) {
+            <div class="log-list">
+                @for (log of doc.logs; track $index) {
+                <div class="log-entry">
+                    <span class="log-icon">●</span>
+                    {{ log }}
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+</div>
+}

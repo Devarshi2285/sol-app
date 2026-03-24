@@ -1,0 +1,300 @@
+{
+    "version": "0.1.0",
+    "name": "hello_anchor",
+    "instructions": [
+        {
+            "name": "createProfile",
+            "accounts": [
+                {
+                    "name": "profile",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "username",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                }
+            ],
+            "returns": "string"
+        },
+        {
+            "name": "createContributerIndex",
+            "accounts": [
+                {
+                    "name": "contributor",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "addIntoContributersDoc",
+            "accounts": [
+                {
+                    "name": "contributor",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "docPda",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "createDoc",
+            "accounts": [
+                {
+                    "name": "doc",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "creatorIndex",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "docLink",
+                    "type": "string"
+                },
+                {
+                    "name": "contributers",
+                    "type": {
+                        "vec": "publicKey"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "signDoc",
+            "accounts": [
+                {
+                    "name": "doc",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "profile",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": []
+        }
+    ],
+    "accounts": [
+        {
+            "name": "Profile",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "authority",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Document",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "creator",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "docLink",
+                        "type": "string"
+                    },
+                    {
+                        "name": "contributers",
+                        "type": {
+                            "vec": "publicKey"
+                        }
+                    },
+                    {
+                        "name": "signedBy",
+                        "type": {
+                            "vec": "publicKey"
+                        }
+                    },
+                    {
+                        "name": "logs",
+                        "type": {
+                            "vec": "string"
+                        }
+                    },
+                    {
+                        "name": "isFinal",
+                        "type": "bool"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "CreatorIndex",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "creator",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "docs",
+                        "type": {
+                            "vec": "publicKey"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ContributorIndex",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "contributor",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "docs",
+                        "type": {
+                            "vec": "publicKey"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "errors": [
+        {
+            "code": 6000,
+            "name": "ProfileAlreadyExists",
+            "msg": "Profile already exists"
+        },
+        {
+            "code": 6001,
+            "name": "DocumentAlreadyExists",
+            "msg": "Document already exists"
+        },
+        {
+            "code": 6002,
+            "name": "CreatorIndexAlreadyExists",
+            "msg": "CreatorIndex already exits"
+        },
+        {
+            "code": 6003,
+            "name": "InvalidAccountsLength",
+            "msg": "Provide all Contributor account"
+        },
+        {
+            "code": 6004,
+            "name": "InvalidContributor",
+            "msg": "Invalid Contributor"
+        },
+        {
+            "code": 6005,
+            "name": "DuplicateContributor",
+            "msg": "Duplicate Contributor"
+        },
+        {
+            "code": 6006,
+            "name": "NoContributors",
+            "msg": "No Contributor"
+        },
+        {
+            "code": 6007,
+            "name": "InvalidDocLink",
+            "msg": "Invalid DOC Link"
+        },
+        {
+            "code": 6008,
+            "name": "InvalidAccountOwner",
+            "msg": "Invalid Account Owner"
+        },
+        {
+            "code": 6009,
+            "name": "AccountNotWritable",
+            "msg": "Account Not Writable"
+        },
+        {
+            "code": 6010,
+            "name": "MaxDocsReached",
+            "msg": "Max Docs Limit Reached"
+        }
+    ]
+}

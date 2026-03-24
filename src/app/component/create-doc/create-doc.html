@@ -1,0 +1,137 @@
+<div class="card">
+    <div class="icon-circle">📄</div>
+
+    <div class="card-header">
+        <h2>Create a Document</h2>
+        <p>Register a new document on-chain and add contributors who can sign it.</p>
+    </div>
+
+    <div class="form-group">
+        <label>Document Link</label>
+        <input class="form-control" type="text" placeholder="Enter the document link or identifier"
+            [(ngModel)]="docLink" />
+    </div>
+
+    <div class="form-group">
+        <label>Contributors</label>
+
+        @if (contributers().length > 0) {
+        <div class="chips-container">
+            @for (contri of contributers(); track $index) {
+            <span class="chip">
+                {{ contri | slice:0:8 }}…{{ contri | slice:-4 }}
+                <button class="remove-btn" (click)="removeContributer($index)">✕</button>
+            </span>
+            }
+        </div>
+        }
+
+        <div class="input-row">
+            <input class="form-control" type="text" placeholder="Paste contributor's wallet address"
+                [(ngModel)]="contributer" (keyup.enter)="addContributer()" />
+            <button class="btn btn-secondary" (click)="addContributer()" [disabled]="!contributer.trim()">
+                + Add
+            </button>
+        </div>
+    </div>
+
+    <button class="btn btn-primary btn-block" (click)="addDoc()" [disabled]="isLoading || !docLink">
+        @if (isLoading) {
+        <span class="animate-pulse">Creating Document…</span>
+        } @else {
+        📄 Create Document On-Chain
+        }
+    </button>
+
+    @if (error()) {
+    <div class="error-toast">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">{{ error() }}</span>
+    </div>
+    }
+</div>
+
+<!-- ── My Documents Section ── -->
+<div class="divider"></div>
+
+<h3 class="section-title">
+    📁 My Documents
+    @if (myDocs().length > 0) {
+    <span class="section-count">{{ myDocs().length }}</span>
+    }
+</h3>
+
+@if (loadingDocs()) {
+<div class="empty-state">
+    <p class="animate-pulse">Loading your documents…</p>
+</div>
+} @else if (myDocs().length === 0) {
+<div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>No documents created yet. Create your first one above!</p>
+</div>
+} @else {
+<div class="doc-list">
+    @for (doc of myDocs(); track doc.pda; let i = $index) {
+    <div class="doc-card">
+        <div class="doc-card-header">
+            <span class="doc-card-title">{{ doc.docLink }}</span>
+            @if (doc.isFinal) {
+            <span class="status-badge success">Finalized</span>
+            } @else {
+            <span class="status-badge pending">Pending</span>
+            }
+        </div>
+
+        <div class="doc-card-meta">
+            <span class="meta-tag">
+                <span class="meta-icon">👥</span>
+                {{ doc.contributors.length }} contributors
+            </span>
+            <span class="meta-tag">
+                <span class="meta-icon">✍️</span>
+                {{ doc.signedBy.length }} signed
+            </span>
+        </div>
+
+        <!-- Contributors -->
+        @if (doc.contributors.length > 0) {
+        <div class="names-list" style="margin-bottom: 0.5rem;">
+            @for (name of doc.contributors; track $index) {
+            <span class="name-chip">👤 {{ name }}</span>
+            }
+        </div>
+        }
+
+        <!-- Signed By -->
+        @if (doc.signedBy.length > 0) {
+        <div class="names-list">
+            @for (name of doc.signedBy; track $index) {
+            <span class="name-chip signed">✓ {{ name }}</span>
+            }
+        </div>
+        }
+
+        <!-- Logs -->
+        @if (doc.logs.length > 0) {
+        <div class="log-section">
+            <div class="log-section-title" (click)="toggleLogs(i)">
+                <span class="toggle-icon" [class.expanded]="doc.logsExpanded">▶</span>
+                Activity Log ({{ doc.logs.length }})
+            </div>
+            @if (doc.logsExpanded) {
+            <div class="log-list">
+                @for (log of doc.logs; track $index) {
+                <div class="log-entry">
+                    <span class="log-icon">●</span>
+                    {{ log }}
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+</div>
+}
