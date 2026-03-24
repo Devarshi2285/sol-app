@@ -19,6 +19,22 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "allowedCommonJsDependencies": [
+              "assert",
+              "bn.js",
+              "js-sha256",
+              "@coral-xyz/borsh",
+              "eventemitter3",
+              "bs58",
+              "base64-js",
+              "camelcase",
+              "pako",
+              "buffer",
+              "borsh",
+              "@solana/buffer-layout",
+              "jayson/lib/client/browser",
+              "process"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -31,11 +47,21 @@
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": {
+                  "inline": false
+                }
+              },
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
