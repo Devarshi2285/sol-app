@@ -1,6 +1,4 @@
 <div class="card">
-    <div class="icon-circle">✍️</div>
-
     <div class="card-header">
         <h2>Documents To Sign</h2>
         <p>View and sign documents that have been assigned to you as a contributor.</p>
@@ -8,17 +6,17 @@
 
     @if (error()) {
     <div class="error-toast">
-        <span class="error-icon">⚠️</span>
+        <span class="error-icon">!</span>
         <span class="error-text">{{ error() }}</span>
     </div>
     }
 </div>
 
-<!-- ── Contributor Doc List ── -->
+<!-- Contributor Doc List -->
 <div class="divider"></div>
 
 <h3 class="section-title">
-    📋 Assigned Documents
+    Assigned Documents
     @if (myDocs().length > 0) {
     <span class="section-count">{{ myDocs().length }}</span>
     }
@@ -30,7 +28,6 @@
 </div>
 } @else if (myDocs().length === 0) {
 <div class="empty-state">
-    <div class="empty-icon">📭</div>
     <p>No documents assigned to you yet.</p>
 </div>
 } @else {
@@ -55,20 +52,22 @@
 
         <div class="doc-card-meta">
             <span class="meta-tag">
-                <span class="meta-icon">👥</span>
                 {{ doc.contributors.length }} contributors
             </span>
             <span class="meta-tag">
-                <span class="meta-icon">✍️</span>
                 {{ doc.signedBy.length }} signed
             </span>
         </div>
 
         <!-- Contributors -->
         @if (doc.contributors.length > 0) {
-        <div class="names-list" style="margin-bottom: 0.5rem;">
+        <div class="names-list" style="margin-bottom: 0.75rem;">
+            <span class="names-list-label">Contributors</span>
             @for (name of doc.contributors; track $index) {
-            <span class="name-chip">👤 {{ name }}</span>
+            <div class="name-item">
+                <span class="name-indicator"></span>
+                {{ name }}
+            </div>
             }
         </div>
         }
@@ -76,8 +75,12 @@
         <!-- Signed By -->
         @if (doc.signedBy.length > 0) {
         <div class="names-list" style="margin-bottom: 0.75rem;">
+            <span class="names-list-label">Signed by</span>
             @for (name of doc.signedBy; track $index) {
-            <span class="name-chip signed">✓ {{ name }}</span>
+            <div class="name-item signed">
+                <span class="name-indicator"></span>
+                {{ name }}
+            </div>
             }
         </div>
         }
@@ -88,7 +91,7 @@
             @if (doc.signing) {
             <span class="animate-pulse">Signing…</span>
             } @else {
-            ✍️ Sign This Document
+            Sign This Document
             }
         </button>
         }

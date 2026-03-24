@@ -1,6 +1,4 @@
 <div class="card">
-    <div class="icon-circle">📄</div>
-
     <div class="card-header">
         <h2>Create a Document</h2>
         <p>Register a new document on-chain and add contributors who can sign it.</p>
@@ -20,7 +18,7 @@
             @for (contri of contributers(); track $index) {
             <span class="chip">
                 {{ contri | slice:0:8 }}…{{ contri | slice:-4 }}
-                <button class="remove-btn" (click)="removeContributer($index)">✕</button>
+                <button class="remove-btn" (click)="removeContributer($index)">×</button>
             </span>
             }
         </div>
@@ -30,7 +28,7 @@
             <input class="form-control" type="text" placeholder="Paste contributor's wallet address"
                 [(ngModel)]="contributer" (keyup.enter)="addContributer()" />
             <button class="btn btn-secondary" (click)="addContributer()" [disabled]="!contributer.trim()">
-                + Add
+                Add
             </button>
         </div>
     </div>
@@ -39,23 +37,23 @@
         @if (isLoading) {
         <span class="animate-pulse">Creating Document…</span>
         } @else {
-        📄 Create Document On-Chain
+        Create Document
         }
     </button>
 
     @if (error()) {
     <div class="error-toast">
-        <span class="error-icon">⚠️</span>
+        <span class="error-icon">!</span>
         <span class="error-text">{{ error() }}</span>
     </div>
     }
 </div>
 
-<!-- ── My Documents Section ── -->
+<!-- My Documents Section -->
 <div class="divider"></div>
 
 <h3 class="section-title">
-    📁 My Documents
+    My Documents
     @if (myDocs().length > 0) {
     <span class="section-count">{{ myDocs().length }}</span>
     }
@@ -67,8 +65,7 @@
 </div>
 } @else if (myDocs().length === 0) {
 <div class="empty-state">
-    <div class="empty-icon">📭</div>
-    <p>No documents created yet. Create your first one above!</p>
+    <p>No documents created yet. Create your first one above.</p>
 </div>
 } @else {
 <div class="doc-list">
@@ -85,29 +82,35 @@
 
         <div class="doc-card-meta">
             <span class="meta-tag">
-                <span class="meta-icon">👥</span>
                 {{ doc.contributors.length }} contributors
             </span>
             <span class="meta-tag">
-                <span class="meta-icon">✍️</span>
                 {{ doc.signedBy.length }} signed
             </span>
         </div>
 
         <!-- Contributors -->
         @if (doc.contributors.length > 0) {
-        <div class="names-list" style="margin-bottom: 0.5rem;">
+        <div class="names-list" style="margin-bottom: 0.75rem;">
+            <span class="names-list-label">Contributors</span>
             @for (name of doc.contributors; track $index) {
-            <span class="name-chip">👤 {{ name }}</span>
+            <div class="name-item">
+                <span class="name-indicator"></span>
+                {{ name }}
+            </div>
             }
         </div>
         }
 
         <!-- Signed By -->
         @if (doc.signedBy.length > 0) {
-        <div class="names-list">
+        <div class="names-list" style="margin-bottom: 0.75rem;">
+            <span class="names-list-label">Signed by</span>
             @for (name of doc.signedBy; track $index) {
-            <span class="name-chip signed">✓ {{ name }}</span>
+            <div class="name-item signed">
+                <span class="name-indicator"></span>
+                {{ name }}
+            </div>
             }
         </div>
         }

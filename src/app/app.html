@@ -1,4 +1,11 @@
+@if (!isLanding) {
 <app-header />
+}
+
+@if (isLanding) {
+<router-outlet />
+} @else {
 <main class="page-container">
   <router-outlet />
 </main>
+}

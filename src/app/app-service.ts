@@ -103,6 +103,7 @@ export class AppService {
       .transaction();
     try {
       await this.sendTx(tx);
+      await this.initContributorIndex();
     }
     catch (err: any) {
       console.log(err);

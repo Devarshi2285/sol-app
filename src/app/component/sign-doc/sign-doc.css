@@ -1,17 +1,8 @@
 :host {
     display: block;
-    animation: fadeUp 0.5s var(--ease) both;
-}
-
-.error-card {
-    background: var(--danger-bg) !important;
-    border-color: rgba(239, 68, 68, 0.2) !important;
-}
-
-.error-card h4 {
-    color: var(--danger) !important;
+    animation: fadeUp 0.4s var(--ease) both;
 }
 
 .doc-card {
-    animation-delay: calc(var(--i, 0) * 80ms);
+    animation-delay: calc(var(--i, 0) * 60ms);
 }

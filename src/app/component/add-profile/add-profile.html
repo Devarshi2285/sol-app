@@ -1,19 +1,21 @@
 <div class="card">
-    <div class="icon-circle">👤</div>
-
-    @if (checking()) {
-    <!-- Loading State -->
     <div class="card-header">
-        <h2>Checking Profile…</h2>
+        @if (checking()) {
+        <h2>Checking Profile</h2>
         <p class="animate-pulse">Looking up your on-chain profile.</p>
-    </div>
-    } @else if (profile()) {
-    <!-- Profile Exists -->
-    <div class="card-header">
+        } @else if (profile()) {
         <h2>Welcome Back</h2>
         <p>Your on-chain profile is active.</p>
+        } @else {
+        <h2>Create Your Profile</h2>
+        <p>Register your identity on the Solana blockchain to start signing documents.</p>
+        }
     </div>
 
+    @if (checking()) {
+    <!-- Loading -->
+    } @else if (profile()) {
+    <!-- Profile Exists -->
     <div class="profile-display">
         <div class="profile-avatar">
             {{ profile().name?.charAt(0)?.toUpperCase() || '?' }}
@@ -35,11 +37,6 @@
     </div>
     } @else {
     <!-- Registration Form -->
-    <div class="card-header">
-        <h2>Create Your Profile</h2>
-        <p>Register your identity on the Solana blockchain to start signing documents.</p>
-    </div>
-
     <div class="form-group">
         <label>Username</label>
         <input class="form-control" type="text" placeholder="Enter your username" [(ngModel)]="username" />
@@ -54,7 +51,7 @@
         @if (isLoading) {
         <span class="animate-pulse">Creating Profile…</span>
         } @else {
-        🚀 Register On-Chain
+        Register On-Chain
         }
     </button>
     }
